@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>감사일기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#f7f7f5;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+.card{width:100%;max-width:420px}
+h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
+.sub{font-size:.85rem;color:#888;margin-bottom:20px}
+.tab-row{display:flex;gap:0;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;margin-bottom:20px}
+.tab-btn{flex:1;padding:10px;border:none;background:#fff;font-size:.85rem;font-weight:500;color:#aaa;cursor:pointer;transition:all .15s;font-family:inherit}
+.tab-btn.active{background:#111;color:#fff}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:#333;margin-bottom:5px}
+.field label span{font-weight:400;color:#aaa;margin-left:4px}
+.field input,.field textarea{width:100%;padding:11px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:.9rem;font-family:inherit;background:#fff;transition:border .15s;color:#111}
+.field input:focus,.field textarea:focus{outline:none;border-color:#111}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.char-count{text-align:right;font-size:.7rem;color:#bbb;margin-top:3px;transition:color .15s}
+.char-count.warn{color:#e04040}
+.char-count.ok{color:#2a9d2a}
+.btn{width:100%;padding:13px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;margin-top:6px}
+.btn-primary{background:#111;color:#fff}
+.btn-primary:hover{background:#333}
+.btn-primary:active{transform:scale(.98)}
+.btn-ghost{background:transparent;color:#888;border:1px solid #e0e0e0}
+.btn-ghost:hover{background:#f0f0f0}
+.msg{font-size:.8rem;text-align:center;margin:8px 0;min-height:18px}
+.msg.error{color:#e04040}
+.msg.success{color:#2a9d2a}
+.info-box{background:#fafaf8;border:1px solid #e8e8e4;border-radius:8px;padding:14px;margin-bottom:16px;font-size:.82rem;line-height:1.7;color:#555}
+.info-box strong{display:block;color:#111;margin-bottom:4px}
+.examples{margin-bottom:18px}
+.ex-block{border:1px solid #e8e8e4;border-radius:8px;padding:14px;margin-bottom:10px;background:#fff}
+.ex-block.good{border-color:#d4edda;background:#f9fdf9}
+.ex-title{font-size:.8rem;font-weight:600;margin-bottom:8px;color:#111}
+.ex-block.good .ex-title{color:#2a9d2a}
+.ex-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:.82rem;line-height:1.5}
+.ex-row:last-child{margin-bottom:0}
+.ex-tag{flex-shrink:0;font-size:.7rem;font-weight:600;padding:2px 6px;border-radius:4px}
+.ex-tag.bad{background:#fce8e8;color:#c44}
+.ex-tag.good{background:#e0f5e0;color:#2a9d2a}
+.badges{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+.badge{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;border:1.5px solid #e0e0e0;color:#bbb;background:#fff;transition:all .2s}
+.badge.done{background:#111;color:#fff;border-color:#111}
+.badge.current{border-color:#111;color:#111;background:#f0f0f0}
+.progress-wrap{margin-bottom:16px}
+.progress-track{height:3px;background:#e8e8e8;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:#111;border-radius:2px;transition:width .4s ease}
+.progress-label{display:flex;justify-content:space-between;font-size:.7rem;color:#aaa;margin-top:5px}
+.divider{border:none;border-top:1px solid #eee;margin:16px 0}
+.complete{text-align:center;padding:32px 0 16px}
+.complete-icon{font-size:2.8rem;margin-bottom:10px}
+.complete-title{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.complete-sub{font-size:.85rem;color:#888;line-height:1.7;white-space:pre-line}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dots span{animation:dot 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%{opacity:0}40%{opacity:1}}
+.submit-progress{margin:10px 0}
+.submit-progress .progress-track{height:4px}
+.submit-progress .progress-label{font-size:.75rem;color:#888}
+.hidden{display:none!important}
+.particle-wrap{position:absolute;top:0;left:0;right:0;pointer-events:none;overflow:hidden;height:100px}
+.particle{position:absolute;width:6px;height:6px;border-radius:50%;animation:fall .8s ease-out forwards}
+@keyframes fall{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(60px) scale(.4)}}
+.credit{text-align:center;font-size:.7rem;color:#ccc;margin-top:24px}
+.credit a{color:#aaa;text-decoration:none}
+.credit a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- 화면 1: 로그인 -->
+  <div id="screen-login">
+    <h1>감사일기</h1>
+    <p class="sub">도덕 수업 감사일기 쓰기 프로젝트</p>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('login')">로그인</button>
+      <button class="tab-btn" onclick="switchTab('reset')">비밀번호 재설정</button>
+    </div>
+    <div id="tab-login">
+      <div class="field"><label>학번</label><input type="text" id="login-id" placeholder="예: 2101" maxlength="10" inputmode="numeric"></div>
+      <div class="field"><label>비밀번호 <span>숫자 4자리</span></label><input type="password" id="login-pw" placeholder="****" maxlength="4" inputmode="numeric"></div>
+      <p class="msg error" id="login-msg"></p>
+      <button class="btn btn-primary" onclick="doLogin()">로그인</button>
+    </div>
+    <div id="tab-reset" class="hidden">
+      <div class="info-box"><strong>비밀번호를 잊었나요?</strong>학번과 이름으로 본인 확인 후 새 비밀번호를 설정할 수 있어요.</div>
+      <div class="field"><label>학번</label><input type="text" id="reset-id" placeholder="학번 입력" maxlength="10" inputmode="numeric"></div>
+      <div class="field"><label>이름</label><input type="text" id="reset-name" placeholder="본인 이름"></div>
+      <div class="field"><label>새 비밀번호 <span>숫자 4자리</span></label><input type="password" id="reset-pw" placeholder="****" maxlength="4" inputmode="numeric"></div>
+      <div class="field"><label>새 비밀번호 확인</label><input type="password" id="reset-pw2" placeholder="****" maxlength="4" inputmode="numeric"></div>
+      <p class="msg error" id="reset-msg"></p>
+      <button class="btn btn-primary" onclick="doReset()">비밀번호 변경</button>
+    </div>
+  </div>
+
+  <!-- 화면 1-B: 첫 비번 설정 -->
+  <div id="screen-setpw" class="hidden">
+    <h1>감사일기</h1>
+    <p class="sub">처음 오셨군요! 비밀번호를 설정해주세요</p>
+    <div class="info-box"><strong><span id="setpw-name"></span>님, 안녕하세요!</strong>앞으로 로그인할 때 사용할 숫자 4자리 비밀번호를 만들어요.</div>
+    <div class="field"><label>새 비밀번호 <span>숫자 4자리</span></label><input type="password" id="setpw-pw" placeholder="****" maxlength="4" inputmode="numeric"></div>
+    <div class="field"><label>비밀번호 확인</label><input type="password" id="setpw-pw2" placeholder="****" maxlength="4" inputmode="numeric"></div>
+    <p class="msg error" id="setpw-msg"></p>
+    <button class="btn btn-primary" onclick="doSetPw()">설정 완료</button>
+  </div>
+
+  <!-- 화면 2: 가이드 -->
+  <div id="screen-guide" class="hidden">
+    <h1>감사일기란?</h1>
+    <p class="sub">쓰기 전에 딱 1분만 읽어봐요!</p>
+    <div class="examples">
+      <div class="ex-block">
+        <div class="ex-title">이런 감사는 별로예요</div>
+        <div class="ex-row"><span class="ex-tag bad">X</span><span>대한민국에 태어나서 다행이다</span></div>
+        <div class="ex-row"><span class="ex-tag bad">X</span><span>눈이 두 개라 다행이다</span></div>
+        <div class="ex-row"><span class="ex-tag bad">X</span><span>오늘 밥 먹어서 감사하다</span></div>
+      </div>
+      <div class="ex-block good">
+        <div class="ex-title">이런 감사를 써봐요</div>
+        <div class="ex-row"><span class="ex-tag good">O</span><span>오늘 아침에 엄마가 좋아하는 반찬 챙겨줬는데 바빠도 챙겨줘서 고마웠다</span></div>
+        <div class="ex-row"><span class="ex-tag good">O</span><span>수학 시험 망쳤는데 친구가 "다음엔 잘 할 거야" 해줘서 기분이 풀렸다</span></div>
+        <div class="ex-row"><span class="ex-tag good">O</span><span>버스 놓칠 뻔했는데 기사님이 기다려줬다. 덕분에 지각 안 했다</span></div>
+      </div>
+    </div>
+    <div class="info-box"><strong>감사일기 쓰는 법</strong>막연한 감사 말고, <b>오늘 실제로 있었던 일</b>을 떠올려봐요.<br>"누가" "무엇을 해줬는지" 구체적으로 쓸수록 좋아요!</div>
+    <button class="btn btn-primary" onclick="showWrite()">이제 써볼게요!</button>
+  </div>
+
+  <!-- 화면 3: 작성 -->
+  <div id="screen-write" class="hidden">
+    <h1>감사일기</h1>
+    <p class="sub" id="write-subtitle"></p>
+    <div class="badges" id="round-badges"></div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label"><span id="progress-left"></span><span id="progress-right"></span></div>
+    </div>
+    <hr class="divider">
+    <div class="field">
+      <label>가정에서 감사한 일 <span>가족, 집에서 있었던 일</span></label>
+      <textarea id="entry-home" placeholder="예) 오늘 아침에 엄마가 좋아하는 반찬 챙겨줘서 고마웠다..." oninput="updateCount(this,'count-home')"></textarea>
+      <div class="char-count" id="count-home">0 / 40자</div>
+    </div>
+    <div class="field">
+      <label>학교에서 감사한 일 <span>친구, 선생님, 수업 중 있었던 일</span></label>
+      <textarea id="entry-school" placeholder="예) 쉬는 시간에 친구가 먼저 말 걸어줘서 기분이 좋았다..." oninput="updateCount(this,'count-school')"></textarea>
+      <div class="char-count" id="count-school">0 / 40자</div>
+    </div>
+    <div class="field">
+      <label>자유롭게 감사한 일 <span>어디서든 OK!</span></label>
+      <textarea id="entry-free" placeholder="예) 버스 놓칠 뻔했는데 기사님이 기다려줘서 지각 안 했다..." oninput="updateCount(this,'count-free')"></textarea>
+      <div class="char-count" id="count-free">0 / 40자</div>
+    </div>
+    <p class="msg error" id="write-msg"></p>
+    <button class="btn btn-primary" id="submit-btn" onclick="doSubmit()">제출하기</button>
+    <button class="btn btn-ghost" onclick="doLogout()">로그아웃</button>
+  </div>
+
+  <!-- 화면 4: 회차 완료 -->
+  <div id="screen-done" class="hidden">
+    <div class="complete" style="position:relative">
+      <div class="complete-icon" id="done-emoji"></div>
+      <div class="complete-title" id="done-title"></div>
+      <div class="complete-sub" id="done-sub"></div>
+      <div class="badges" id="done-badges" style="margin-top:16px"></div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="showWrite()">돌아가기</button>
+      <button class="btn btn-ghost" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+
+  <!-- 화면 5: 전체 완료 -->
+  <div id="screen-finish" class="hidden">
+    <div class="complete">
+      <div class="complete-icon">🎉</div>
+      <div class="complete-title">4회차 모두 완료!</div>
+      <div class="complete-sub">감사일기 프로젝트를 모두 마쳤어요.
+꾸준히 써줘서 정말 대단해요!
+
+수고했어요, <span id="finish-name"></span>님!</div>
+      <div class="badges" style="margin-top:16px">
+        <div class="badge done">1회</div><div class="badge done">2회</div><div class="badge done">3회</div><div class="badge done">4회</div>
+      </div>
+      <button class="btn btn-ghost" onclick="doLogout()" style="margin-top:16px">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="credit">made by <a href="https://blog.naver.com/ssam_hobbybox" target="_blank">취미쌤</a></div>
+</div>
+
+<script>
+// ============================================
+// 설정: 아래 URL을 GAS 배포 URL로 교체하세요
+// ============================================
+var GAS_URL = "여기에_GAS_배포_URL을_입력하세요";
+// ============================================
+
+var currentUser = null;
+
+// GAS 워밍업 (콜드 스타트 방지)
+(function(){fetch(GAS_URL,{method:'GET'}).catch(function(){})})();
+
+function updateCount(ta,cid){var l=ta.value.length;var el=document.getElementById(cid);el.textContent=l+' / 40자';el.className=l>=40?'char-count ok':l>0?'char-count warn':'char-count'}
+
+function switchTab(tab){var bs=document.querySelectorAll('.tab-btn');bs[0].classList.toggle('active',tab==='login');bs[1].classList.toggle('active',tab==='reset');document.getElementById('tab-login').classList.toggle('hidden',tab!=='login');document.getElementById('tab-reset').classList.toggle('hidden',tab!=='reset')}
+
+function showOnly(id){var s=['screen-login','screen-setpw','screen-guide','screen-write','screen-done','screen-finish'];for(var i=0;i<s.length;i++)document.getElementById(s[i]).classList.add('hidden');document.getElementById(id).classList.remove('hidden')}
+
+async function doLogin(){
+  var id=document.getElementById('login-id').value.trim();
+  var pw=document.getElementById('login-pw').value.trim();
+  var msg=document.getElementById('login-msg');
+  msg.textContent='';
+  if(!id||!pw){msg.textContent='학번과 비밀번호를 입력해주세요.';return}
+  var btn=document.querySelector('#tab-login .btn-primary');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>확인 중<span class="dots"><span>.</span><span>.</span><span>.</span></span>';
+  msg.style.color='#aaa';msg.textContent='서버에 확인 중이에요...';
+  try{
+    var res=await gas('login',{id:id,pw:pw});
+    if(res.ok){
+      currentUser={id:id,name:res.name,round:res.nextRound};
+      btn.innerHTML='완료!';msg.style.color='#2a9d2a';msg.textContent=res.name+'님, 반가워요!';
+      setTimeout(function(){
+        if(res.nextRound>4){document.getElementById('finish-name').textContent=res.name;showOnly('screen-finish')}
+        else if(res.nextRound===1){showOnly('screen-guide')}
+        else{showWrite()}
+      },800);
+    }else if(res.status==='no_pw'){
+      currentUser={id:id,name:res.name,round:1};
+      document.getElementById('setpw-name').textContent=res.name;
+      btn.innerHTML='완료!';setTimeout(function(){showOnly('screen-setpw')},600);
+    }else{
+      msg.style.color='#e04040';msg.textContent=res.msg||'학번 또는 비밀번호가 틀렸어요.';
+      btn.disabled=false;btn.innerHTML='로그인';
+    }
+  }catch(e){msg.style.color='#e04040';msg.textContent='연결 오류. 잠시 후 다시 시도해주세요.';btn.disabled=false;btn.innerHTML='로그인'}
+}
+
+async function doSetPw(){
+  var pw=document.getElementById('setpw-pw').value.trim();
+  var pw2=document.getElementById('setpw-pw2').value.trim();
+  var msg=document.getElementById('setpw-msg');
+  if(!/^\d{4}$/.test(pw)){msg.textContent='숫자 4자리로 입력해주세요.';return}
+  if(pw!==pw2){msg.textContent='비밀번호가 일치하지 않아요.';return}
+  msg.textContent='저장 중...';
+  try{var res=await gas('setpw',{id:currentUser.id,pw:pw});if(res.ok){currentUser.round=1;showOnly('screen-guide')}else{msg.textContent=res.msg||'오류가 발생했어요.'}}catch(e){msg.textContent='연결 오류.'}
+}
+
+async function doReset(){
+  var id=document.getElementById('reset-id').value.trim();
+  var name=document.getElementById('reset-name').value.trim();
+  var pw=document.getElementById('reset-pw').value.trim();
+  var pw2=document.getElementById('reset-pw2').value.trim();
+  var msg=document.getElementById('reset-msg');
+  if(!id||!name){msg.textContent='학번과 이름을 입력해주세요.';return}
+  if(!/^\d{4}$/.test(pw)){msg.textContent='새 비밀번호는 숫자 4자리로 입력해주세요.';return}
+  if(pw!==pw2){msg.textContent='비밀번호가 일치하지 않아요.';return}
+  msg.textContent='확인 중...';
+  try{var res=await gas('resetpw',{id:id,name:name,pw:pw});if(res.ok){msg.className='msg success';msg.textContent='비밀번호가 변경됐어요! 로그인해주세요.';setTimeout(function(){msg.textContent='';msg.className='msg error';switchTab('login')},2000)}else{msg.textContent=res.msg||'학번 또는 이름이 맞지 않아요.'}}catch(e){msg.textContent='연결 오류.'}
+}
+
+function showWrite(){
+  var r=currentUser.round;
+  document.getElementById('write-subtitle').textContent=currentUser.name+'님 · '+r+'회차 작성 중';
+  var be=document.getElementById('round-badges');be.innerHTML='';
+  for(var i=1;i<=4;i++){var b=document.createElement('div');b.className='badge'+(i<r?' done':i===r?' current':'');b.textContent=i+'회';be.appendChild(b)}
+  document.getElementById('progress-fill').style.width=((r-1)/4*100)+'%';
+  document.getElementById('progress-left').textContent=(r-1)+'회차 완료';
+  document.getElementById('progress-right').textContent='총 4회차';
+  var fs=['entry-home','entry-school','entry-free'],cs=['count-home','count-school','count-free'];
+  for(var j=0;j<fs.length;j++){document.getElementById(fs[j]).value='';document.getElementById(cs[j]).textContent='0 / 40자';document.getElementById(cs[j]).className='char-count'}
+  document.getElementById('write-msg').textContent='';
+  showOnly('screen-write');
+}
+
+async function doSubmit(){
+  var home=document.getElementById('entry-home').value.trim();
+  var school=document.getElementById('entry-school').value.trim();
+  var free=document.getElementById('entry-free').value.trim();
+  var msg=document.getElementById('write-msg');
+  if(!home||!school||!free){msg.textContent='세 칸 모두 써줘야 해요!';return}
+  if(home.length<40||school.length<40||free.length<40){
+    var which=home.length<40?'가정에서':school.length<40?'학교에서':'자유롭게';
+    msg.textContent=which+' 항목을 40자 이상 써주세요! (현재 '+Math.min(home.length,school.length,free.length)+'자)';return}
+  var btn=document.getElementById('submit-btn');btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>제출 중...';msg.textContent='';
+  var pw=document.createElement('div');pw.className='submit-progress';
+  pw.innerHTML='<div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0"></div></div><div class="progress-label" id="prog-label">연결하는 중<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+  btn.parentNode.insertBefore(pw,btn);
+  var steps=[{w:'30%',t:'연결하는 중'},{w:'65%',t:'저장하는 중'},{w:'85%',t:'거의 다 됐어요'}],si=0;
+  var tick=setInterval(function(){if(si>=steps.length){clearInterval(tick);return}document.getElementById('prog-fill').style.width=steps[si].w;document.getElementById('prog-label').innerHTML=steps[si].t+'<span class="dots"><span>.</span><span>.</span><span>.</span></span>';si++},700);
+  try{
+    var res=await gas('submit',{id:currentUser.id,name:currentUser.name,round:currentUser.round,home:home,school:school,free:free,timestamp:new Date().toLocaleString('ko-KR')});
+    clearInterval(tick);
+    if(res.ok){
+      document.getElementById('prog-fill').style.width='100%';document.getElementById('prog-label').textContent='완료!';btn.innerHTML='제출 완료!';
+      setTimeout(function(){
+        pw.remove();var r=currentUser.round;
+        var emojis=['🌱','🌿','🌳','🎉'],titles=['1회차 완료!','2회차 완료! 절반이에요','3회차 완료! 거의 다 왔어요','4회차 모두 완료!'];
+        var subs=['앞으로 3번 더 남았어요.\n다음 시간에 또 솔직하게 써봐요!','2회차도 완료! 벌써 절반이에요.\n감사한 마음이 조금씩 느껴지나요?','딱 1번만 더 남았어요!\n마지막까지 힘내봐요!','4회차 모두 마쳤어요!\n꾸준히 써줘서 정말 대단해요!'];
+        if(r>=4){currentUser.round=5;document.getElementById('finish-name').textContent=currentUser.name;showOnly('screen-finish')}
+        else{
+          currentUser.round=r+1;document.getElementById('done-emoji').textContent=emojis[r-1];document.getElementById('done-title').textContent=titles[r-1];document.getElementById('done-sub').textContent=subs[r-1];
+          var dw=document.querySelector('#screen-done .complete'),pw2=document.createElement('div');pw2.className='particle-wrap';dw.prepend(pw2);
+          var colors=['#111','#888','#ccc','#e0e0e0','#555'];
+          for(var k=0;k<14;k++){var p=document.createElement('div');p.className='particle';p.style.cssText='left:'+(5+Math.random()*90)+'%;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-delay:'+Math.random()*0.5+'s;';pw2.appendChild(p)}
+          setTimeout(function(){pw2.remove()},1200);
+          var db=document.getElementById('done-badges');db.innerHTML='';
+          for(var m=1;m<=4;m++){var bb=document.createElement('div');bb.className='badge'+(m<=r?' done':'');bb.textContent=m+'회';db.appendChild(bb)}
+          showOnly('screen-done');
+        }
+        btn.disabled=false;btn.textContent='제출하기';
+      },500);
+    }else{pw.remove();msg.textContent=res.msg||'제출 오류. 다시 시도해주세요.';btn.disabled=false;btn.textContent='제출하기'}
+  }catch(e){clearInterval(tick);pw.remove();msg.textContent='연결 오류. 잠시 후 다시 시도해주세요.';btn.disabled=false;btn.textContent='제출하기'}
+}
+
+function doLogout(){currentUser=null;document.getElementById('login-id').value='';document.getElementById('login-pw').value='';document.getElementById('login-msg').textContent='';var b=document.querySelector('#tab-login .btn-primary');if(b){b.disabled=false;b.innerHTML='로그인'}switchTab('login');showOnly('screen-login')}
+
+async function gas(action,data){
+  var url=GAS_URL+'?action='+action;
+  for(var a=1;a<=3;a++){
+    try{var r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}
+    catch(e){if(a===3)throw e;await new Promise(function(ok){setTimeout(ok,a*1000)})}
+  }
+}
+</script>
+</body>
+</html>
